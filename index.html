@@ -1,0 +1,177 @@
+<!doctype HTML>
+<html>
+	<head>
+		<title>
+			南北アメリカ・オセアニア　〜首都〜
+		</title>
+		<style>
+			.main {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%,-50%);
+				width: 100%;
+			}
+			#Q_Text {
+				font-size: 70px;
+				text-align: center;
+				user-select: none;
+				margin-top: 0px;
+			}
+			#A_Text {
+				font-size: 20px;
+				text-align: center;
+				user-select: none;
+			}
+			#A_Input {
+				height: 30ox;
+				font-size: 30px;
+				position: relative;
+				left: 50%;
+				transform: translateX(-50%);
+			}
+			#progress {
+				position: absolute;
+				top: 10%;
+				left: 20%;
+			}
+			#result {
+				visibility: hidden;
+				background-color: #EEE;
+				height: 300px;
+				width: 700px; 
+				opacity: 0.95;
+				border-radius: 30px;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%,-50%);
+				user-select: none;
+			}
+			#result p {
+				text-align: center;
+				font-size: 50px;
+			}
+			#result input {
+				position: relative;
+				left: 50%;
+				transform: translateX(-50%);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="main">
+			<p id="Q_Text">
+			</p>
+			<p id="A_Text">none
+			</p>
+			<form onsubmit="return send();">
+				<input id="A_Input">
+			</form>
+		</div>
+		<p id="progress"></p>
+		<div id="result">
+			<p id="R_Text">正答率 : </p>
+			<form onsubmit="return restart();">
+				<input  type="submit" value="もう一度" >
+			</form>
+		</div>
+		<script>
+			var QText = document.getElementById("Q_Text");
+			var AText = document.getElementById("A_Text");
+			var AInput = document.getElementById("A_Input");
+			var result = document.getElementById("result");
+			var RText = document.getElementById("R_Text");
+			var progress = document.getElementById("progress");
+			var Question	= {
+				all : [""],
+				now : [""]
+			}
+			var fail = 0;
+			var color = ["#FFF","#FFA","#EA0","#B00"];
+			var sent = 0;
+			var finished = 0;
+			var len = 0;
+			function send() {
+				event.preventDefault()
+				sent++;
+				if (AInput.value == Question.now[1]) {
+					finished++;
+					progress.innerHTML = `${finished} / ${len}`;
+					AInput.value = "";
+					AInput.style.backgroundColor = "#FFF";
+					AInput.style.color = "#000";
+					if (Question.all[0].length == 0) {
+						fin()
+					} else {
+						next()
+					}
+				} else {
+					fail++;
+					AInput.value = "";
+					AText.style.visibility = "visible";
+					var ans = "";
+					if (fail == 1) {
+						for (var i = 0; i < Question.now[1].length - 1; i++) ans += "*";
+						ans += Question.now[1].at(ans.length)
+					} else {
+						if (fail == 2) {
+							ans += Question.now[1].at(0)
+							for (var i = 0; i < Question.now[1].length - 2; i++) ans += "*";
+							ans += Question.now[1].at(ans.length)
+						} else {
+							ans = Question.now[1]
+						}
+					}
+					AText.innerHTML = ans;
+					if (fail < 3) {
+						AInput.style.backgroundColor = color[fail];
+					} else {
+						AInput.style.backgroundColor = color[3];
+						AInput.style.color = "#FFF";
+					}
+				}
+			}
+
+			function next() {
+					fail = 0;
+					AInput.style.backgroundColor = "#FFF";
+					AInput.style.color = "#000";
+					var random = Math.floor(Math.random()*Question.all[0].length);
+
+					for (var n = 0; n < 2; n++) {
+						Question.now[n] = Question.all[n][random];
+					}
+
+					Question.all[0].splice(random,1)
+					Question.all[1].splice(random,1)
+					QText.innerHTML = Question.now[0];
+					AText.innerHTML = "none";
+					AText.style.visibility = "hidden";
+			}
+
+			function restart() {
+				event.preventDefault();
+				result.style.visibility = "hidden";
+				start(); 
+			}
+			
+			function start() {
+				finished = 0;
+				sent = 0;
+				Question.all = [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 27],
+												 ["ヘイロンチャン", "チーリン", "リアオニン", "ネイモンクー", "ホーペイ", "ホーナン", "シャントン", "シャンシー", "チアンスー", "チョーチアン", "アンホイ", "フーペイ", "フーナン", "チアンシー", "フーチェン", "コワントン", "コワンシーチョワン", "ハイナン", "ユンナン", "コイチヨウ", "スーチョワン", "シャンシー", "ニンシアホイ", "カンスー", "チンハイ", "シーツァン", "シンチャンウイグル"]];
+				len = Question.all[0].length;
+				progress.innerHTML = `${finished} / ${len}`;
+				next()
+			}
+
+			function fin() {
+				RText.innerHTML = `正答率 : ${Math.floor(len/sent*1000)/10}%`
+				result.style.visibility = "visible";
+			}
+
+			start()
+		</script>
+	</body>
+</html>
